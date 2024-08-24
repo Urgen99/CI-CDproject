@@ -1,0 +1,27 @@
+- name: Install Apache
+  yum:
+    name: httpd
+    state: present
+
+- name: Start and enable Apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Configure Apache as a reverse proxy
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^#?ProxyPass'
+    line: |
+      ProxyPass "/"  "http://127.0.0.1:80/"
+      ProxyPassReverse "/"  "http://127.0.0.1:80/"
+  notify:
+    - Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: httpd
+        state: restarted
+
